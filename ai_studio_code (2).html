@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SARTORIAL | 智慧衣櫥</title>
+    <style>
+        /* 
+         * 🎨 UI 設計系統：極簡、高級、自然質感 (類無印風)
+         */
+        :root {
+            --bg-color: #F9F8F6;       /* 溫暖米白背景 */
+            --card-bg: #FFFFFF;        /* 純白卡片 */
+            --text-main: #4A4A4A;      /* 深灰主色 */
+            --text-sub: #908E8C;       /* 淺灰副色 */
+            --accent: #8E8070;         /* 莫蘭迪棕/淡木頭色 */
+            --accent-light: #E8E4E1;   /* 淺強調色 */
+            --border: #ECEBE9;         /* 極淡邊框 */
+            --shadow: 0 10px 30px rgba(120, 110, 100, 0.06); /* 柔和高級陰影 */
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --font-stack: "PingFang TC", "Heiti TC", "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.7;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        h1, h2, h3, h4 { font-weight: 400; margin: 0 0 15px 0; letter-spacing: 0.1em; }
+
+        .container { max-width: 900px; margin: 0 auto; padding-bottom: 80px; }
+
+        /* Header */
+        header { text-align: center; margin-bottom: 60px; animation: fadeIn 1s ease; }
+        header h1 { font-size: 2.2rem; color: #2C2C2C; letter-spacing: 0.2em; margin-bottom: 10px; }
+        header p { font-size: 0.9rem; color: var(--text-sub); font-style: italic; }
+
+        /* 卡片系統 */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.8);
+            transition: var(--transition);
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(120, 110, 100, 0.1); }
+
+        /* 表單元素 */
+        label { display: block; font-size: 0.9rem; color: var(--text-sub); margin-bottom: 8px; font-weight: 500; }
+        
+        input[type="text"], input[type="number"], select {
+            width: 100%; padding: 12px 15px; border: 1px solid #E0E0E0; border-radius: 8px;
+            background: #FAFAFA; color: var(--text-main); font-size: 1rem; transition: var(--transition);
+            appearance: none; font-family: var(--font-stack);
+        }
+        input:focus, select:focus { background: #FFF; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(142, 128, 112, 0.1); }
+
+        /* 按鈕系統 */
+        .btn {
+            border: none; cursor: pointer; border-radius: 30px; padding: 12px 30px;
+            font-size: 0.95rem; transition: var(--transition); letter-spacing: 0.1em;
+            display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-stack);
+        }
+        .btn-primary { background-color: var(--text-main); color: #FFF; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .btn-primary:hover { background-color: #222; transform: scale(1.02); }
+        .btn-secondary { background-color: transparent; border: 1px solid #DDD; color: var(--text-sub); }
+        .btn-secondary:hover { border-color: var(--text-main); color: var(--text-main); }
+        
+        .btn-text {
+            background: none; color: var(--accent); padding: 5px 10px; font-size: 0.85rem;
+            text-decoration: underline; text-underline-offset: 4px; border: none; cursor: pointer;
+            font-family: var(--font-stack);
+        }
+        .btn-text:hover { color: var(--text-main); }
+
+        /* Step 流程樣式 */
+        .step-container { display: none; animation: fadeIn 0.5s ease; }
+        .step-container.active { display: block; }
+
+        .step-indicator { display: flex; justify-content: space-between; margin-bottom: 30px; position: relative; }
+        .step-indicator::before { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: #EEE; z-index: 0; }
+        .step-dot {
+            width: 30px; height: 30px; background: #FFF; border: 1px solid #DDD; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #CCC; z-index: 1; transition: var(--transition);
+        }
+        .step-dot.active { border-color: var(--accent); color: var(--accent); font-weight: bold; background: var(--bg-color); }
+
+        /* 多選 Tag 樣式 */
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
+        .check-tag input { display: none; }
+        .check-tag span {
+            display: inline-block; padding: 8px 16px; background: #F5F5F5; border-radius: 20px;
+            font-size: 0.9rem; color: #888; cursor: pointer; transition: var(--transition); border: 1px solid transparent;
+            user-select: none;
+        }
+        .check-tag input:checked + span { background: var(--accent); color: #FFF; box-shadow: 0 4px 10px rgba(142, 128, 112, 0.3); }
+
+        /* 衣櫥 Grid */
+        .closet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+        .item-card {
+            background: #FFF; border-radius: 8px; overflow: hidden; border: 1px solid #F0F0F0;
+            transition: var(--transition); position: relative;
+        }
+        .item-card:hover { transform: scale(1.03); box-shadow: var(--shadow); z-index: 2; }
+        .item-card img { width: 100%; height: 180px; object-fit: cover; background: #F9F9F9; }
+        .item-info { padding: 12px; }
+        .item-info h4 { font-size: 0.95rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #333; }
+        .item-tags { font-size: 0.75rem; color: #AAA; display: flex; flex-wrap: wrap; gap: 4px; }
+        .tag-pill { background: #F7F7F7; padding: 2px 6px; border-radius: 4px; }
+        .usage-badge {
+            position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6);
+            color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; backdrop-filter: blur(4px);
+        }
+
+        /* 推薦結果區 */
+        .result-section { display: none; animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        
+        .weather-banner {
+            background: linear-gradient(135deg, #FDFBF9 0%, #F2EFED 100%);
+            padding: 20px; border-radius: var(--radius); margin-bottom: 30px;
+            display: flex; align-items: center; justify-content: space-between; border: 1px solid #EEE;
+        }
+        .weather-icon { font-size: 2.5rem; margin-right: 15px; }
+        .weather-text h3 { margin-bottom: 5px; color: var(--accent); }
+        .weather-text p { font-size: 0.9rem; color: #666; margin: 0; }
+
+        .outfit-display { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 30px; }
+        .outfit-piece { width: 180px; text-align: center; }
+        .outfit-piece img {
+            width: 100%; height: 220px; object-fit: cover; border-radius: 8px;
+            margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .philosophy-box {
+            background: #FFFEFC; border-left: 3px solid var(--accent); padding: 20px 30px;
+            font-style: italic; color: #555; margin: 30px 0; position: relative;
+        }
+        .philosophy-box::before {
+            content: '"'; position: absolute; top: 10px; left: 10px; font-size: 3rem; color: #EEE; font-family: serif; z-index: 0;
+        }
+
+        .vibe-tags { text-align: center; margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; }
+
+        .extra-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; font-size: 0.85rem; color: #777; }
+        .info-block { background: #FAFAFA; padding: 20px; border-radius: 8px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Toggle Switch */
+        .toggle-switch { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 10px; font-size: 0.95rem; }
+        .switch-bg { width: 40px; height: 20px; background: #DDD; border-radius: 20px; position: relative; transition: 0.3s; }
+        .switch-bg::after { content: ''; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; background: #FFF; border-radius: 50%; transition: 0.3s; }
+        input:checked + .switch-bg { background: var(--accent); }
+        input:checked + .switch-bg::after { left: 22px; }
+
+        .feedback-btns { display: flex; justify-content: center; gap: 15px; margin-top: 40px; padding-top: 30px; border-top: 1px solid #EEE; }
+        .fb-btn { background: #FFF; border: 1px solid #E0E0E0; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem; color: #666; cursor: pointer; transition: 0.2s; font-family: var(--font-stack); }
+        .fb-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* 條件顯示區塊 */
+        .conditional-block { display: none; }
+        .conditional-block.active { display: block; animation: fadeIn 0.3s ease; }
+
+        /* 特殊輸入框 */
+        .other-input {
+            margin-top: 10px; 
+            display: none; 
+            border-left: 3px solid var(--accent);
+            padding-left: 10px;
+        }
+        .other-input.active { display: block; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>SARTORIAL</h1>
+        <p>為您打造的智慧穿搭系統</p>
+    </header>
+
+    <!-- 🧩 B. Step-by-Step 新增衣服 -->
+    <section class="card" id="addSection">
+        <h3 style="text-align:center; margin-bottom:30px;">新增單品到衣櫥</h3>
+        
+        <div class="step-indicator">
+            <div class="step-dot active" id="dot1">1</div>
+            <div class="step-dot" id="dot2">2</div>
+            <div class="step-dot" id="dot3">3</div>
+            <div class="step-dot" id="dot4">4</div>
+        </div>
+
+        <form id="addItemForm">
+            <!-- Step 1: Basic Information -->
+            <div class="step-container active" id="step1">
+                <label>單品名稱</label>
+                <input type="text" id="itemName" placeholder="例如：羊毛針織衫 / 珍珠耳環">
+                
+                <label style="margin-top:15px">類別</label>
+                <select id="itemType" onchange="toggleFormLogic()">
+                    <option value="top">Top (上衣)</option>
+                    <option value="bottom">Bottom (下身)</option>
+                    <option value="onepiece">One-Piece (連身裙/褲)</option>
+                    <option value="outer">Outerwear (外套)</option>
+                    <option value="accessory">Accessory (飾品)</option>
+                </select>
+
+                <!-- 飾品子類別 (動態顯示) -->
+                <div id="accSubCategory" class="conditional-block">
+                    <label style="margin-top:15px; color:var(--accent);">飾品類型 (必填)</label>
+                    <select id="accTypeSelect">
+                        <option value="Necklace">項鍊</option>
+                        <option value="Bracelet">手鍊</option>
+                        <option value="Ring">戒指</option>
+                        <option value="Earrings">耳環</option>
+                        <option value="Sunglasses">墨鏡</option>
+                        <option value="Hat">帽子</option>
+                        <option value="Belt">腰帶</option>
+                        <option value="Scarf">圍巾</option>
+                        <option value="Gloves">手套</option>
+                        <option value="HairAcc">髮飾</option>
+                        <option value="Brooch">胸針</option>
+                        <option value="Anklet">腳鍊</option>
+                        <option value="Other">其他</option>
+                    </select>
+                </div>
+
+                <label style="margin-top:15px">上傳圖片</label>
+                <input type="file" id="itemImg" accept="image/*">
+                
+                <div style="text-align:right; margin-top:20px;">
+                    <button type="button" class="btn btn-primary" onclick="changeStep(1)">下一步</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Properties (Divergent) -->
+            <div class="step-container" id="step2">
+                <!-- 衣服屬性 -->
+                <div id="clothesProps" class="conditional-block active">
+                    <label>適合天氣</label>
+                    <select id="itemWeather">
+                        <option value="cold">寒冷 (< 15°C)</option>
+                        <option value="cool">涼爽 (15-22°C)</option>
+                        <option value="warm">悶熱 (> 22°C)</option>
+                    </select>
+                    <label style="margin-top:15px">厚度</label>
+                    <select id="itemThickness">
+                        <option value="thin">薄</option>
+                        <option value="medium">中</option>
+                        <option value="thick">厚</option>
+                    </select>
+                </div>
+
+                <!-- 飾品屬性 -->
+                <div id="accProps" class="conditional-block">
+                    <label>穿戴位置 (單選)</label>
+                    <select id="accBodyPart">
+                        <option value="Head">頭部 (帽子/髮飾)</option>
+                        <option value="Eyes">眼部 (墨鏡)</option>
+                        <option value="Neck">頸部 (項鍊)</option>
+                        <option value="Ears">耳朵 (耳環)</option>
+                        <option value="Wrist">手腕 (手鍊/錶)</option>
+                        <option value="Finger">手指 (戒指)</option>
+                        <option value="Waist">腰部 (腰帶)</option>
+                        <option value="Shoulder">頸肩 (圍巾)</option>
+                        <option value="Hand">手部 (手套)</option>
+                        <option value="Other">其他</option>
+                    </select>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="changeStep(-1)">上一步</button>
+                    <button type="button" class="btn btn-primary" onclick="changeStep(1)">下一步</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Details (Divergent) -->
+            <div class="step-container" id="step3">
+                <!-- 共用: 顏色 -->
+                <label>顏色</label>
+                <select id="itemColor">
+                    <option value="White">白 / 米色</option>
+                    <option value="Black">黑</option>
+                    <option value="Grey">灰</option>
+                    <option value="Brown">棕 / 大地色</option>
+                    <option value="Gold">金</option>
+                    <option value="Silver">銀</option>
+                    <option value="Color">彩色 / 其他</option>
+                </select>
+
+                <!-- 衣服材質 -->
+                <div id="clothesMaterials" class="conditional-block active" style="margin-top:15px;">
+                    <label>材質 (衣服)</label>
+                    <div class="checkbox-group">
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Cotton"><span>棉</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Linen"><span>麻</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Wool"><span>羊毛</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Silk"><span>絲</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Polyester"><span>聚酯纖維</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Denim"><span>丹寧</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Leather"><span>皮革</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Knitted"><span>針織</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Cashmere"><span>羊絨</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Suede"><span>絨面</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Shearling"><span>羊羔毛</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Ribbed"><span>羅紋布</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Chiffon"><span>雪紡</span></label>
+                        <label class="check-tag"><input type="checkbox" name="clothMat" value="Spandex"><span>彈性纖維</span></label>
+                    </div>
+                </div>
+
+                <!-- 飾品材質 -->
+                <div id="accMaterials" class="conditional-block" style="margin-top:15px;">
+                    <label>材質 (飾品)</label>
+                    <div class="checkbox-group">
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Gold"><span>金</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Silver"><span>銀</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Copper"><span>銅</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Platinum"><span>鉑金</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="RoseGold"><span>玫瑰金</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Pearl"><span>珍珠</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Gem"><span>水晶/寶石</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Leather"><span>皮革</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Beads"><span>珠串</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Acrylic"><span>壓克力</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Wood"><span>木頭</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Weave"><span>編織</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Fabric"><span>布料</span></label>
+                        <label class="check-tag"><input type="checkbox" name="accMat" value="Natural"><span>自然材質</span></label>
+                    </div>
+                </div>
+
+                <label style="margin-top:15px">風格</label>
+                <!-- 風格區塊：動態生成 -->
+                <div class="checkbox-group" id="styleContainerAdd">
+                    <!-- JS 渲染 -->
+                </div>
+
+                <label style="margin-top:15px">場景</label>
+                <div class="checkbox-group">
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="Work"><span>上班</span></label>
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="Casual"><span>休閒</span></label>
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="Date"><span>約會</span></label>
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="Sport"><span>運動</span></label>
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="Travel"><span>旅遊</span></label>
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="School"><span>上課</span></label>
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="Formal"><span>正式場合</span></label>
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="Home"><span>家居</span></label>
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="NightOut"><span>夜間外出</span></label>
+                    <label class="check-tag"><input type="checkbox" name="itemScene" value="Photoshoot"><span>拍照</span></label>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="changeStep(-1)">上一步</button>
+                    <button type="button" class="btn btn-primary" onclick="changeStep(1)">下一步</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Care & Finish -->
+            <div class="step-container" id="step4">
+                <!-- 衣服清潔 -->
+                <div id="clothesCare" class="conditional-block active">
+                    <label>清潔方式 (可多選)</label>
+                    <div class="checkbox-group">
+                        <label class="check-tag"><input type="checkbox" name="washMethod" value="機洗"><span>機洗</span></label>
+                        <label class="check-tag"><input type="checkbox" name="washMethod" value="手洗"><span>手洗</span></label>
+                        <label class="check-tag"><input type="checkbox" name="washMethod" value="乾洗"><span>乾洗</span></label>
+                        <label class="check-tag"><input type="checkbox" name="washMethod" value="晾乾"><span>晾乾</span></label>
+                        <label class="check-tag"><input type="checkbox" name="washMethod" value="陰乾"><span>陰乾</span></label>
+                        <label class="check-tag"><input type="checkbox" name="washMethod" value="不可烘乾"><span>不可烘乾</span></label>
+                        <label class="check-tag"><input type="checkbox" name="washMethod" value="低溫熨燙"><span>低溫熨燙</span></label>
+                        <!-- 其他選項觸發輸入框 -->
+                        <label class="check-tag"><input type="checkbox" name="washMethod" value="其他" onchange="toggleOtherInput()"><span>其他</span></label>
+                    </div>
+                    <!-- 手動輸入框 -->
+                    <div id="washOtherInput" class="other-input">
+                        <input type="text" id="washOtherText" placeholder="請輸入特殊洗滌方式...">
+                    </div>
+                </div>
+
+                <!-- 飾品保養 (自動對應) -->
+                <div id="accCare" class="conditional-block">
+                    <label>建議保養方式 (系統將根據材質自動設定)</label>
+                    <div style="padding:15px; background:#F0F0F0; border-radius:8px; font-size:0.9rem; color:#666;">
+                        系統會根據您選擇的材質 (如銀、皮革、珍珠) 自動標記最佳保養建議。
+                    </div>
+                </div>
+
+                <label style="margin-top:20px">可替代品群組 (選填)</label>
+                <input type="text" id="itemAltGroup" placeholder="例如：basic_white_tee">
+
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="changeStep(-1)">上一步</button>
+                    <button type="button" class="btn btn-primary" onclick="addItem()">加入衣櫥</button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <!-- 衣櫥展示 -->
+    <section class="card">
+        <h3 style="margin-bottom:20px;">我的衣櫥</h3>
+        <div class="closet-grid" id="closetGrid">
+            <p style="grid-column:1/-1; text-align:center; color:#AAA;">載入衣櫥中...</p>
+        </div>
+    </section>
+
+    <!-- 推薦條件輸入 -->
+    <section class="card">
+        <h3>今日穿搭設定</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
+            <div>
+                <label>現在氣溫 (°C)</label>
+                <input type="number" id="todayTemp" value="24">
+            </div>
+            <div>
+                <label>今日場景</label>
+                <select id="todayScene">
+                    <option value="Work">上班</option>
+                    <option value="School">上課</option>
+                    <option value="Casual">休閒</option>
+                    <option value="Date">約會</option>
+                    <option value="NightOut">夜間外出</option>
+                    <option value="Formal">正式場合</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <label>今日心情 (單選)</label>
+            <div class="checkbox-group" id="moodContainer">
+                <!-- JS 渲染 Mood -->
+            </div>
+        </div>
+
+        <div style="margin-top:20px; display:flex; gap:30px; flex-wrap:wrap;">
+            <label class="toggle-switch">
+                <input type="checkbox" id="todayRain">
+                <span class="switch-bg"></span> 是否下雨？
+            </label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="needOuter">
+                <span class="switch-bg"></span> 需要外套？
+            </label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="needAcc" checked>
+                <span class="switch-bg"></span> 需要飾品？
+            </label>
+        </div>
+
+        <div style="margin-top:20px;">
+            <label>想嘗試的風格 (可多選)</label>
+            <div class="checkbox-group" id="styleContainerRec">
+                <!-- JS 渲染 Style -->
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:30px;">
+            <button class="btn btn-primary" onclick="generateOutfits()">產生今日穿搭</button>
+        </div>
+    </section>
+
+    <!-- 推薦結果 -->
+    <section class="card result-section" id="resultSection">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <button class="btn btn-secondary" onclick="prevOutfit()">❮ 上一套</button>
+            <h4 style="margin:0;">穿搭提案 <span id="outfitIdx">1</span> / 3</h4>
+            <button class="btn btn-secondary" onclick="nextOutfit()">下一套 ❯</button>
+        </div>
+
+        <div class="weather-banner" id="weatherBanner"></div>
+
+        <div class="vibe-tags" id="vibeTags"></div>
+
+        <div class="outfit-display" id="outfitDisplay"></div>
+
+        <div class="philosophy-box" id="philosophyText"></div>
+
+        <div class="extra-info">
+            <div class="info-block" id="fragranceBox"></div>
+            <div class="info-block" id="motivationBox"></div>
+        </div>
+
+        <div class="feedback-btns">
+            <button class="fb-btn" onclick="handleFeedback('cold')">❄️ 太冷</button>
+            <button class="fb-btn" onclick="handleFeedback('good')">❤️ 剛好</button>
+            <button class="fb-btn" onclick="handleFeedback('hot')">🔥 太熱</button>
+            <button class="fb-btn" onclick="handleFeedback('dislike')">💔 不喜歡</button>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    /* 
+     * 🧩 Data Definitions
+     */
+    
+    // 擴充風格列表
+    const ALL_STYLES = [
+        "極簡", "優雅", "甜美", "街頭", "中性", "韓系", "日系", "文青", "典雅 / 復古",
+        "正式", "運動風", "氣質", "大膽個性", "休閒", "可愛", "氣場強", "極致簡約",
+        "柔和溫柔", "美式休閒", "校園風", "Y2K", "波西米亞", "工裝風"
+    ];
+
+    // 擴充心情列表
+    const ALL_MOODS = [
+        "放鬆", "開心", "想要沈穩", "需要勇氣", "自信", "優雅", "活潑", "中性酷",
+        "溫柔", "精神很好", "有點累但努力撐", "想要療癒", "認真但不嚴肅", "想低調", "想突出"
+    ];
+
+    // 中文化對照表 (部分保留ID, 顯示用中文)
+    const labelMap = {
+        'top': '上衣', 'bottom': '下身', 'onepiece': '連身', 'outer': '外套', 'accessory': '飾品',
+        'cold': '寒冷', 'cool': '涼爽', 'warm': '悶熱',
+        
+        // Materials
+        'Cotton': '棉', 'Linen': '麻', 'Wool': '羊毛', 'Silk': '絲', 'Polyester': '聚酯', 'Denim': '丹寧', 'Leather': '皮革',
+        'Knitted': '針織', 'Cashmere': '羊絨', 'Suede': '絨面', 'Shearling': '羊羔毛', 'Ribbed': '羅紋布', 'Chiffon': '雪紡', 'Spandex': '彈性纖維',
+        
+        // Acc Materials
+        'Gold': '金', 'Silver': '銀', 'Copper': '銅', 'Platinum': '鉑金', 'RoseGold': '玫瑰金', 'Pearl': '珍珠', 'Gem': '水晶/寶石',
+        'Beads': '珠串', 'Acrylic': '壓克力', 'Wood': '木頭', 'Weave': '編織', 'Fabric': '布料', 'Natural': '自然材質',
+
+        // Scenes
+        'Work': '上班', 'Casual': '休閒', 'Date': '約會', 'Sport': '運動', 'Travel': '旅遊',
+        'School': '上課', 'Formal': '正式場合', 'Home': '家居', 'NightOut': '夜間外出', 'Photoshoot': '拍照',
+
+        // Acc Types
+        'Necklace': '項鍊', 'Bracelet': '手鍊', 'Earrings': '耳環', 'Ring': '戒指', 'Hat': '帽子', 'HairAcc': '髮飾', 'Watch': '手錶',
+        'Sunglasses': '墨鏡', 'Belt': '腰帶', 'Scarf': '圍巾', 'Gloves': '手套', 'Brooch': '胸針', 'Anklet': '腳鍊', 'Other': '其他'
+    };
+
+    // 100句心情小語
+    const moodMessages = [
+        "今天的你，比陽光更溫暖。", "穿上這套衣服，世界都會對你溫柔一點。", "你本來就很好，只是衣服提醒了你這件事。", "今天也要用喜歡自己的方式生活。", "穿搭只是外在，光芒一直都在你心裡。",
+        "溫柔不是累贅，而是你的力量。", "希望今天的風，都順著你的方向吹。", "穿上喜歡的衣服，也同時穿上勇氣。", "不必完美，只要自在就很好。", "今天的你，值得被好好欣賞。",
+        "世界或許忙亂，但你的步伐可以很平靜。", "你的存在，就已經是一種風景。", "換上舒適的衣服，把煩惱也換掉。", "衣服是陪伴，而你才是主角。", "美從來不是張揚，而是剛剛好被看到。",
+        "希望你的心，如布料般柔軟。", "今天也要記得愛自己多一點。", "生活很吵，但你的心可以很安靜。", "無論去哪裡，都願溫暖跟著你。", "喜歡的穿搭，是靈魂的語言。",
+        "不用努力做誰，你本來就很好。", "今天的選擇，會讓你更接近想要的自己。", "拿出你最舒服的那件衣服—它懂你。", "穿搭不是規則，是自由。", "願你今天的心情如顏色般乾淨明亮。",
+        "舒適與美，其實可以一起。", "你的存在讓今天變得更柔軟。", "希望你今天能被善意包圍。", "選衣服也是選心情。", "不確定的時候，就選讓你平靜的那件。",
+        "溫柔不是弱，是力量的另一種樣子。", "你值得每一份細緻的對待。", "愉快的穿搭，會讓一天變輕盈。", "你不需要很亮，也能成為焦點。", "今天的風景，因為你而完整。",
+        "願每一步都有自信陪著你。", "穿著舒服，是對自己最大的善意。", "別忘了抬頭看看天空，跟你一樣溫柔。", "無論選哪套，都會讓你很好看。", "今天的你，是自己的幸運星。",
+        "希望你今天遇到的都是柔軟的事。", "你的美好，遠比你以為的更多。", "每一天都值得被好好打扮。", "衣服不會改變你，但能影響心情。", "穩定，是最溫柔的力量。",
+        "感受布料貼著皮膚的那種安心。", "希望你今天笑得像新洗好的衣服一樣乾淨。", "風會替你帶走不快。", "你的存在，就是溫度。", "沒有誰規定你不能發光。",
+        "每一次選擇，都讓你更像你自己。", "今天也要穿得像自己的心情。", "你的步伐，比什麼都重要。", "美不是比較，是感覺。", "你值得任何細緻的事物靠近。",
+        "衣服能給你形狀，但態度給你力量。", "願今天的你，被自己喜歡。", "最舒服的樣子，就是最美的樣子。", "今天的你是溫柔的證據。", "一件衣服就能讓心重新被照亮。",
+        "願你每天都與平靜同行。", "喜歡穿什麼，就是喜歡生活什麼。", "氣質不是穿出來，是活出來。", "你的輕盈，世界會看見。", "別急，慢慢來也很好。",
+        "你值得被世界溫柔以待。", "心若柔軟，處處皆風景。", "無論什麼心情，你都可以很美。", "世界很吵，但你可以很安穩。", "輕輕穿上衣服，也輕輕接住自己。",
+        "你的存在讓今天變得柔和。", "每一件衣服都有它的故事，你也有。", "穿搭是一種語言，你正說著溫柔。", "不必為誰盛裝，你就是理由。", "世界會因你的名字而亮一點。",
+        "希望今天所有的路都剛剛好。", "美是一種溫度，而你自帶暖意。", "穿上喜歡的衣服，是一種小小幸福。", "你的眼神比飾品更閃耀。", "今天的你，是自己的浪漫。",
+        "願你被善意環抱，也願你給自己溫柔。", "穿搭是生活的溫柔提醒。", "美不是目的，是過程。", "今天的你值得被好好對待。", "希望你今天碰到的都是好事。",
+        "穿上這件，連風都會為你停留。", "你不必努力成為誰，你就是答案。", "你的心情值得被好好安放。", "願你今天的步伐不慌不忙。", "衣服是陪你走路的風景。",
+        "你比想像的更溫柔，也更堅強。", "今天的陽光正好，適合喜歡自己。", "願你的每一步都帶著自由。", "無論發生什麼，你都足夠。", "別忘了，你一直都有光。",
+        "穿搭不能解決所有事，但能治好一部分。", "願你被生活溫柔收藏。", "今天的你，是小宇宙最明亮的星。", "衣服是外在，心是永恆的風景。", "今天的你，剛剛好，美得剛剛好。"
+    ];
+
+    /* 
+     * 🧩 UI Rendering Helpers
+     */
+    function renderStyleTags(containerId, nameAttr) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = ALL_STYLES.map(style => `
+            <label class="check-tag">
+                <input type="checkbox" name="${nameAttr}" value="${style}">
+                <span>${style}</span>
+            </label>
+        `).join('');
+    }
+
+    function renderMoodTags(containerId, nameAttr) {
+        const container = document.getElementById(containerId);
+        // Mood is Radio (single choice) conceptually, but UI looks like tags. 
+        // Using radio behavior for logic, but styled same as check-tag.
+        container.innerHTML = ALL_MOODS.map(mood => `
+            <label class="check-tag">
+                <input type="radio" name="${nameAttr}" value="${mood}">
+                <span>${mood}</span>
+            </label>
+        `).join('');
+    }
+
+    // Init UI
+    renderStyleTags('styleContainerAdd', 'itemStyle');
+    renderStyleTags('styleContainerRec', 'todayStyle');
+    renderMoodTags('moodContainer', 'todayMood');
+
+
+    /* 
+     * 🧩 Form Logic
+     */
+    let closet = [
+        // Demo Data
+        { id: 1, name: "羊毛針織衫", type: "top", weather: "cold", thickness: "medium", material: ["Wool", "Knitted"], style: ["極簡", "典雅 / 復古"], scene: ["Work", "Date", "School"], color: "Brown", wash: "乾洗", img: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400", usageCount: 5, altGroup: "sweater_basic" },
+        { id: 2, name: "白色雪紡襯衫", type: "top", weather: "warm", thickness: "thin", material: ["Chiffon"], style: ["甜美", "氣質"], scene: ["Casual", "Date"], color: "White", wash: "手洗", img: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400", usageCount: 2, altGroup: "white_shirt" },
+        { id: 3, name: "珍珠耳環", type: "accessory", accType: "Earrings", bodyPart: "Ears", material: ["Pearl", "Gold"], style: ["甜美", "優雅"], scene: ["Date", "Formal"], accCare: "軟布擦、避免酒精", img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400", usageCount: 1, altGroup: "earring" },
+        { id: 4, name: "極簡銀戒", type: "accessory", accType: "Ring", bodyPart: "Finger", material: ["Silver"], style: ["極簡", "中性"], scene: ["Casual", "Work"], accCare: "布擦拭、銀布拋光", img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400", usageCount: 3, altGroup: "ring" },
+        { id: 5, name: "直筒丹寧褲", type: "bottom", weather: "cool", thickness: "medium", material: ["Denim"], style: ["街頭", "休閒", "美式休閒"], scene: ["Casual", "School"], color: "Blue", wash: "機洗", img: "https://images.unsplash.com/photo-1542272454374-d41e9529cf5d?w=400", usageCount: 12, altGroup: "jeans" }
+    ];
+
+    let userPreference = { tempBias: 0, styleBias: {}, dislikeItems: [] };
+    let generatedOutfits = [];
+    let currentOutfitIdx = 0;
+    let currentStep = 1;
+
+    function changeStep(dir) {
+        if(currentStep === 1 && dir === 1 && !document.getElementById('itemName').value) {
+            alert("請輸入單品名稱"); return;
+        }
+        document.getElementById(`step${currentStep}`).classList.remove('active');
+        document.getElementById(`dot${currentStep}`).classList.remove('active');
+        currentStep += dir;
+        document.getElementById(`step${currentStep}`).classList.add('active');
+        document.getElementById(`dot${currentStep}`).classList.add('active');
+    }
+
+    function toggleFormLogic() {
+        const type = document.getElementById('itemType').value;
+        const isAcc = type === 'accessory';
+
+        document.getElementById('accSubCategory').style.display = isAcc ? 'block' : 'none';
+        
+        // Toggle blocks
+        document.getElementById('clothesProps').className = isAcc ? 'conditional-block' : 'conditional-block active';
+        document.getElementById('accProps').className = isAcc ? 'conditional-block active' : 'conditional-block';
+        
+        document.getElementById('clothesMaterials').className = isAcc ? 'conditional-block' : 'conditional-block active';
+        document.getElementById('accMaterials').className = isAcc ? 'conditional-block active' : 'conditional-block';
+
+        document.getElementById('clothesCare').className = isAcc ? 'conditional-block' : 'conditional-block active';
+        document.getElementById('accCare').className = isAcc ? 'conditional-block active' : 'conditional-block';
+    }
+
+    function toggleOtherInput() {
+        const otherCheckbox = document.querySelector('input[name="washMethod"][value="其他"]');
+        const inputDiv = document.getElementById('washOtherInput');
+        if (otherCheckbox.checked) inputDiv.classList.add('active');
+        else inputDiv.classList.remove('active');
+    }
+
+    function getAccCareAdvice(materials) {
+        if (materials.includes('Silver')) return "布擦拭、銀布拋光、避免碰水";
+        if (materials.includes('Gold') || materials.includes('RoseGold') || materials.includes('Platinum')) return "乾布擦、避免香水與汗水";
+        if (materials.includes('Leather')) return "皮革油、陰乾";
+        if (materials.includes('Pearl')) return "軟布擦、避免酒精";
+        if (materials.includes('Gem') || materials.includes('Crystal')) return "乾布擦、避免碰撞";
+        if (materials.includes('Wood')) return "保持乾燥、避免曝曬";
+        return "乾布輕擦、收納於乾燥處";
+    }
+
+    function addItem() {
+        const type = document.getElementById('itemType').value;
+        const isAcc = type === 'accessory';
+        const imgInput = document.getElementById('itemImg');
+        const imgUrl = imgInput.files[0] ? URL.createObjectURL(imgInput.files[0]) : "https://via.placeholder.com/400x500/eee/aaa?text=No+Image";
+        const getChecked = (name) => Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
+
+        let newItem = {
+            id: Date.now(),
+            name: document.getElementById('itemName').value,
+            type: type,
+            style: getChecked('itemStyle'),
+            scene: getChecked('itemScene'),
+            color: document.getElementById('itemColor').value,
+            altGroup: document.getElementById('itemAltGroup').value,
+            img: imgUrl,
+            usageCount: 0
+        };
+
+        if (isAcc) {
+            newItem.accType = document.getElementById('accTypeSelect').value;
+            newItem.bodyPart = document.getElementById('accBodyPart').value;
+            newItem.material = getChecked('accMat');
+            newItem.accCare = getAccCareAdvice(newItem.material);
+        } else {
+            newItem.weather = document.getElementById('itemWeather').value;
+            newItem.thickness = document.getElementById('itemThickness').value;
+            newItem.material = getChecked('clothMat');
+            
+            // 組合洗滌方式
+            let washes = getChecked('washMethod');
+            if (washes.includes('其他')) {
+                const otherText = document.getElementById('washOtherText').value;
+                if(otherText) washes.push(otherText);
+                washes = washes.filter(w => w !== '其他');
+            }
+            newItem.wash = washes.join("、");
+        }
+
+        closet.push(newItem);
+        renderCloset();
+        alert("成功加入衣櫥！");
+        document.getElementById('addItemForm').reset();
+        
+        // Reset Steps & Checkboxes
+        currentStep = 4; changeStep(-3);
+        toggleFormLogic(); 
+        document.getElementById('washOtherInput').classList.remove('active');
+    }
+
+    function renderCloset() {
+        const grid = document.getElementById('closetGrid');
+        grid.innerHTML = closet.map(item => `
+            <div class="item-card">
+                <div class="usage-badge">已穿 ${item.usageCount} 次</div>
+                <img src="${item.img}" alt="${item.name}">
+                <div class="item-info">
+                    <h4>${item.name}</h4>
+                    <div class="item-tags">
+                        <span class="tag-pill">${labelMap[item.type] || item.type}</span>
+                        ${item.type === 'accessory' ? 
+                            `<span class="tag-pill">${labelMap[item.accType] || item.accType}</span>` : 
+                            `<span class="tag-pill">${labelMap[item.weather]}</span>`
+                        }
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    /* 
+     * 🧩 Logic: Recommendation
+     */
+    function getTempTag(t) {
+        let temp = parseFloat(t) + userPreference.tempBias;
+        if (temp < 15) return 'cold';
+        if (temp < 22) return 'cool';
+        return 'warm';
+    }
+
+    function getFragrance(styleArray) {
+        // 新增風格對應
+        if (styleArray.includes('極簡') || styleArray.includes('極致簡約')) return "清新木質調";
+        if (styleArray.includes('甜美') || styleArray.includes('可愛')) return "花果香";
+        if (styleArray.includes('氣場強') || styleArray.includes('大膽個性') || styleArray.includes('街頭')) return "中性辛香 / 皮革調";
+        if (styleArray.includes('休閒') || styleArray.includes('美式休閒')) return "柑橘清新";
+        if (styleArray.includes('正式') || styleArray.includes('優雅')) return "木質＋花香";
+        if (styleArray.includes('約會') || styleArray.includes('典雅 / 復古') || styleArray.includes('氣質')) return "東方花香、香草麝香";
+        if (styleArray.includes('運動風') || styleArray.includes('校園風')) return "乾淨肥皂感、草本香";
+        if (styleArray.includes('日系') || styleArray.includes('文青')) return "清新森林調 / 茶香";
+        if (styleArray.includes('韓系') || styleArray.includes('柔和溫柔')) return "皂感香 / 純淨亞麻";
+        if (styleArray.includes('Y2K')) return "糖果甜香 / 金屬冷調";
+        if (styleArray.includes('波西米亞')) return "廣藿香 / 檀香";
+        if (styleArray.includes('工裝風') || styleArray.includes('中性')) return "煙燻木質 / 苔蘚調";
+        
+        return "純淨亞麻香"; 
+    }
+
+    function generateOutfits() {
+        const temp = document.getElementById('todayTemp').value;
+        const scene = document.getElementById('todayScene').value;
+        const rain = document.getElementById('todayRain').checked;
+        const needOuter = document.getElementById('needOuter').checked;
+        const needAcc = document.getElementById('needAcc').checked;
+        const selectedStyles = Array.from(document.querySelectorAll('input[name="todayStyle"]:checked')).map(el => el.value);
+        
+        // 取得單選心情
+        const moodRadio = document.querySelector('input[name="todayMood"]:checked');
+        const mood = moodRadio ? moodRadio.value : "平靜";
+
+        const tempTag = getTempTag(temp);
+        
+        // Weather Banner
+        let weatherText = temp > 22 ? "陽光強烈，適合透氣材質。" : (temp < 15 ? "氣溫較低，建議多層次穿搭。" : "舒適宜人，適合展現風格。");
+        if(rain) weatherText = "濕度偏高，建議選擇不易吸水材質。";
+        document.getElementById('weatherBanner').innerHTML = `
+            <div class="weather-icon">${rain ? '🌧' : (temp>22?'🔥':'☀')}</div>
+            <div class="weather-text"><h3>${temp}°C / ${labelMap[tempTag]}</h3><p>${weatherText}</p></div>
+        `;
+
+        generatedOutfits = [];
+
+        // Score Item Function
+        const scoreItem = (item) => {
+            if(userPreference.dislikeItems.includes(item.id)) return -100;
+            let score = 0;
+            
+            // Match Style
+            if (item.style.some(s => selectedStyles.includes(s))) score += 10;
+            
+            // Match Scene
+            if (item.scene.includes(scene)) score += 5;
+
+            // Clothes specific: Weather
+            if (item.type !== 'accessory') {
+                if (item.weather === tempTag) score += 10;
+                if (tempTag === 'cool' && item.weather === 'cold') score += 5;
+            }
+
+            // Acc specific
+            if (item.type === 'accessory') score += Math.random() * 5;
+
+            return score + Math.random() * 5;
+        };
+
+        const getBestItem = (type) => {
+            const candidates = closet.filter(i => i.type === type).sort((a,b) => scoreItem(b) - scoreItem(a));
+            return candidates.slice(0, 3)[Math.floor(Math.random() * Math.min(candidates.length, 3))];
+        };
+
+        for(let i=0; i<3; i++) {
+            let outfit = {};
+            outfit.top = getBestItem('top');
+            outfit.bottom = getBestItem('bottom') || getBestItem('pants');
+            outfit.outer = needOuter ? getBestItem('outer') : null;
+            outfit.acc = needAcc ? getBestItem('accessory') : null;
+            outfit.meta = { temp, scene, rain, mood };
+            
+            if(outfit.top && (outfit.bottom || outfit.onepiece)) generatedOutfits.push(outfit);
+        }
+
+        if(generatedOutfits.length === 0) {
+            alert("衣物數量不足以產生推薦，請先新增更多單品。"); return;
+        }
+
+        currentOutfitIdx = 0;
+        document.getElementById('resultSection').style.display = 'block';
+        renderOutfit(0);
+        document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function renderOutfit(idx) {
+        const outfit = generatedOutfits[idx];
+        document.getElementById('outfitIdx').textContent = idx + 1;
+
+        const items = [outfit.top, outfit.bottom, outfit.outer, outfit.acc].filter(x => x);
+        const display = document.getElementById('outfitDisplay');
+        
+        display.innerHTML = items.map(item => {
+            let desc = "";
+            if (item.type === 'accessory') desc = `${labelMap[item.accType]} · ${item.accCare}`;
+            else desc = `${labelMap[item.material[0]] || ""} · ${item.wash}`;
+
+            return `
+            <div class="outfit-piece" style="animation: fadeIn 0.5s ease">
+                <img src="${item.img}">
+                <strong>${item.name}</strong><br>
+                <span style="font-size:0.8rem; color:#888;">${desc}</span>
+            </div>`;
+        }).join('');
+
+        // Vibe Tags
+        const allStyles = items.flatMap(i => i.style);
+        const mainStyle = allStyles[0] || '極簡';
+        const uniqueStyles = [...new Set(allStyles)].slice(0, 3).join(' × ');
+        document.getElementById('vibeTags').textContent = `✨ 今日氛圍：${uniqueStyles}`;
+
+        // Fragrance
+        const scent = getFragrance(allStyles);
+        document.getElementById('fragranceBox').innerHTML = `
+            <strong>🌿 香味氛圍建議</strong><br>
+            <span style="color:var(--accent); font-weight:500;">${scent}</span><br>
+            <span style="font-size:0.8rem; color:#999;">(對應 ${mainStyle} 風格)</span>
+        `;
+
+        // Mood Message
+        const msg = moodMessages[Math.floor(Math.random() * moodMessages.length)];
+        document.getElementById('motivationBox').innerHTML = `<strong>✨ 給你的一句話</strong><br>${msg}`;
+
+        // Philosophy
+        const philosophies = [
+            `這套搭配以${outfit.top.name}為主調，呼應今天的${labelMap[outfit.meta.scene]}需求。`,
+            `選擇${mainStyle}風格，希望能讓你感到${outfit.meta.mood}。`,
+            `考量到${outfit.meta.temp}°C的天氣，材質的選擇是重點。`
+        ];
+        
+        document.getElementById('philosophyText').innerHTML = philosophies.join("<br>");
+    }
+
+    // Navigation & Feedback
+    function prevOutfit() { if(currentOutfitIdx > 0) { currentOutfitIdx--; renderOutfit(currentOutfitIdx); } }
+    function nextOutfit() { if(currentOutfitIdx < generatedOutfits.length - 1) { currentOutfitIdx++; renderOutfit(currentOutfitIdx); } }
+    function handleFeedback(type) { 
+        if(type==='dislike') alert("已加入不喜歡清單");
+        else alert("謝謝回饋，系統將持續學習您的偏好。");
+    }
+
+    // Init
+    renderCloset();
+    toggleFormLogic();
+</script>
+
+</body>
+</html>
