@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SARTORIAL | 專屬智慧衣櫥</title>
+    <style>
+        /* =========================================
+           CSS 變數與設計系統 (UI Theme System)
+           ========================================= */
+        :root {
+            /* 預設主題：柔和木質調 (Misty Beige) */
+            --primary-color: #8E8070;       /* 莫蘭迪棕 */
+            --bg-color: #F9F8F6;            /* 溫暖米白 */
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --text-main: #4A4A4A;
+            --text-sub: #908E8C;
+            --border: #ECEBE9;
+            --radius: 8px;
+            --font-size-base: 16px;
+            --shadow: 0 10px 40px rgba(120, 110, 100, 0.05);
+            --font-main: "Helvetica Neue", "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif;
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --backdrop: blur(12px);
+        }
+
+        /* 主題色定義 */
+        [data-theme="warm-grey"] {
+            --primary-color: #7D7D7D;
+            --bg-color: #F2F2F2;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+        [data-theme="soft-pink"] {
+            --primary-color: #B08B95;
+            --bg-color: #FCF5F6;
+            --card-bg: rgba(255, 255, 255, 0.9);
+        }
+        [data-theme="forest-green"] {
+            --primary-color: #6B8E6B;
+            --bg-color: #F1F5F1;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+        [data-theme="classic-navy"] {
+            --primary-color: #5C6B7F;
+            --bg-color: #F4F6F9;
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: var(--font-size-base);
+            margin: 0; padding: 0;
+            line-height: 1.6;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+        /* =========================================
+           1. 入場動畫 & Onboarding
+           ========================================= */
+        #intro-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        .intro-content { z-index: 2; text-align: center; animation: fadeIn 2s ease; }
+        .intro-logo { font-size: 3rem; letter-spacing: 0.3em; margin-bottom: 10px; color: var(--primary-color); }
+        .intro-sub { font-size: 1rem; color: #999; letter-spacing: 0.1em; margin-bottom: 40px; }
+        .intro-input {
+            border: none; border-bottom: 1px solid #CCC; background: transparent;
+            font-size: 1.2rem; text-align: center; padding: 10px; margin-top: 20px;
+            color: #555; width: 250px;
+        }
+        .intro-btn {
+            margin-top: 40px; padding: 12px 40px; border: 1px solid var(--primary-color);
+            background: transparent; color: var(--primary-color); border-radius: 30px; cursor: pointer;
+            transition: var(--transition);
+        }
+        .intro-btn:hover { background: var(--primary-color); color: #FFF; }
+
+        /* =========================================
+           2. Header & Drawer
+           ========================================= */
+        #app-header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 25px; z-index: 100;
+            background: rgba(255,255,255,0.7); backdrop-filter: var(--backdrop);
+        }
+        .hamburger { font-size: 1rem; cursor: pointer; color: var(--text-main); letter-spacing: 0.2em; }
+        .app-title { font-size: 1.1rem; letter-spacing: 0.2em; font-weight: 400; }
+
+        #drawer {
+            position: fixed; top: 0; left: 0; width: 300px; height: 100%;
+            background: #FFF; box-shadow: 10px 0 40px rgba(0,0,0,0.03);
+            transform: translateX(-100%); transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 200; display: flex; flex-direction: column; padding: 100px 40px 40px;
+        }
+        #drawer.open { transform: translateX(0); }
+        
+        .drawer-info { margin-bottom: 50px; }
+        .drawer-date { font-size: 0.8rem; color: var(--text-sub); letter-spacing: 0.1em; }
+        .drawer-weather { font-size: 0.9rem; margin-top: 5px; color: var(--text-main); }
+        .drawer-quote { font-size: 0.85rem; font-style: italic; margin-top: 20px; line-height: 1.6; color: var(--primary-color); border-left: 2px solid #EEE; padding-left: 15px; }
+        
+        .nav-item {
+            padding: 15px 0; font-size: 1rem; cursor: pointer; color: #888;
+            transition: 0.3s; border-bottom: 1px solid transparent; letter-spacing: 0.05em;
+        }
+        .nav-item:hover { color: var(--text-main); padding-left: 10px; }
+
+        #drawer-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.5); backdrop-filter: blur(3px); z-index: 150;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s;
+        }
+        #drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+        /* =========================================
+           3. Layout & Components
+           ========================================= */
+        main {
+            padding-top: 90px; padding-bottom: 60px;
+            max-width: 900px; margin: 0 auto; min-height: 100vh;
+        }
+
+        .section { display: none; animation: fadeInPage 0.8s ease; padding: 0 20px; }
+        .section.active { display: block; }
+        @keyframes fadeInPage { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card {
+            background: var(--card-bg); border-radius: var(--radius);
+            box-shadow: var(--shadow); padding: 35px; margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.6); transition: var(--transition);
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 20px 50px rgba(0,0,0,0.06); }
+
+        .btn {
+            border: none; cursor: pointer; border-radius: 4px; padding: 12px 28px;
+            font-size: 0.95rem; transition: var(--transition); letter-spacing: 0.1em;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-family: var(--font-main);
+        }
+        .btn-primary { background-color: var(--text-main); color: #FFF; }
+        .btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-outline { border: 1px solid var(--border); background: transparent; color: var(--text-main); }
+        .btn-outline:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        
+        .tag-pill {
+            display: inline-block; padding: 8px 16px; background: #FFF;
+            border-radius: 20px; font-size: 0.85rem; color: var(--text-sub);
+            cursor: pointer; margin: 0 8px 8px 0; border: 1px solid #EEE; transition: 0.3s;
+        }
+        .tag-pill.active, .tag-pill:hover {
+            background: var(--primary-color); color: white; border-color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(142, 128, 112, 0.2);
+        }
+        .check-hidden { display: none; }
+        .check-hidden:checked + .tag-pill { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        .input-field {
+            width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #DDD;
+            background: transparent; margin-bottom: 20px; font-family: var(--font-main);
+            color: var(--text-main); font-size: 1rem; transition: 0.3s; border-radius: 0;
+        }
+        .input-field:focus { border-bottom-color: var(--primary-color); }
+
+        /* =========================================
+           4. 首頁 Home (升級版)
+           ========================================= */
+        .home-hero {
+            display: flex; justify-content: center; align-items: center; padding: 20px 0 40px;
+        }
+        /* 玻璃擬物卡片 */
+        .hero-card.glass {
+            position: relative; width: 100%; padding: 40px 32px 50px;
+            border-radius: 28px; background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), rgba(255, 240, 245, 0.85));
+            box-shadow: 0 18px 45px rgba(180, 150, 160, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); overflow: hidden;
+            opacity: 0; transform: translateY(10px); animation: heroFadeIn 0.7s ease-out forwards;
+        }
+        .hero-card.glass .hero-header { animation: heroFadeIn 0.7s ease-out forwards 0.05s; opacity: 0; }
+        .hero-card.glass .hero-note { animation: heroFadeIn 0.7s ease-out forwards 0.12s; opacity: 0; }
+        .hero-card.glass .hero-actions { animation: heroFadeIn 0.7s ease-out forwards 0.18s; opacity: 0; }
+
+        @keyframes heroFadeIn { to { opacity: 1; transform: translateY(0); } }
+
+        .brand-title-animated { font-size: 1.2rem; letter-spacing: 0.16em; margin-bottom: 30px; text-align: center; color: var(--primary-color); animation: titleFloat 4s ease-in-out infinite; display: block; }
+        @keyframes titleFloat { 0%, 100% { letter-spacing: 0.16em; transform: translateY(0); } 50% { letter-spacing: 0.22em; transform: translateY(-1px); } }
+
+        .hero-header { text-align: center; margin-bottom: 30px; position: relative; z-index: 2; }
+        .hero-date { font-size: 0.9rem; letter-spacing: 0.2em; color: var(--text-sub); margin-bottom: 15px; }
+        
+        .hero-weather { display: flex; align-items: center; justify-content: center; gap: 20px; }
+        .weather-icon-wrapper { width: 72px; height: 72px; position: relative; }
+        .weather-icon { width: 100%; height: 100%; position: relative; }
+        .weather-text { text-align: left; }
+        .weather-main { font-size: 1.8rem; font-weight: 300; color: var(--text-main); line-height: 1.2; }
+        .weather-sub { font-size: 1rem; color: var(--text-sub); }
+
+        /* 極簡天氣圖示 (CSS Draw) */
+        .icon-sunny::before {
+            content: ""; position: absolute; inset: 18px; border-radius: 50%;
+            background: radial-gradient(circle, #ffe9b3, #ffcc7a); box-shadow: 0 0 18px rgba(255, 210, 130, 0.7);
+        }
+        .icon-sunny::after { content: ""; position: absolute; inset: 8px; border-radius: 50%; border: 1px solid rgba(255, 230, 180, 0.7); }
+        
+        .icon-rainy-light::before {
+            content: ""; position: absolute; top: 15px; left: 10px; width: 50px; height: 30px; background: #E0E0E0; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .icon-rainy-light::after {
+            content: ""; position: absolute; top: 50px; left: 25px; width: 2px; height: 10px; background: #AAA; box-shadow: 10px 5px 0 #AAA, -10px 8px 0 #AAA;
+        }
+
+        .icon-cloudy::before {
+            content: ""; position: absolute; top: 20px; left: 15px; width: 45px; height: 25px; background: #DDD; border-radius: 20px;
+        }
+        .icon-cloudy::after {
+            content: ""; position: absolute; top: 10px; left: 25px; width: 35px; height: 35px; background: #EEE; border-radius: 50%; z-index: -1;
+        }
+
+        .hero-note { margin: 30px 0; text-align: center; position: relative; z-index: 2; }
+        .hero-note-label { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--primary-color); margin-bottom: 8px; }
+        .hero-note-text { font-size: 1.1rem; color: #555; font-style: italic; line-height: 1.6; }
+
+        .hero-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; position: relative; z-index: 2; }
+        .action-card { 
+            text-align: center; padding: 25px; cursor: pointer; 
+            border: 1px solid rgba(255,255,255,0.8); background: rgba(255,255,255,0.4);
+            border-radius: var(--radius); transition: 0.3s; backdrop-filter: blur(5px);
+        }
+        .action-card:hover { background: #FFF; box-shadow: var(--shadow); transform: translateY(-2px); }
+        .action-card h3 { margin: 0; font-size: 0.95rem; color: var(--text-main); letter-spacing: 0.05em; font-weight: 400; }
+
+        /* 天氣動畫背景層 */
+        .weather-animation { position: absolute; inset: -40%; pointer-events: none; z-index: 0; }
+        
+        .weather-animation.sunny::before, .weather-animation.sunny::after {
+            content: ""; position: absolute; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9), transparent);
+            filter: blur(10px); opacity: 0.7; animation: sunGlow 12s ease-in-out infinite alternate;
+        }
+        .weather-animation.sunny::before { width: 55%; height: 55%; top: -10%; right: -8%; }
+        .weather-animation.sunny::after { width: 40%; height: 40%; bottom: -8%; left: -6%; }
+        @keyframes sunGlow { 0% { transform: translate3d(0,0,0) scale(1); opacity: 0.55; } 100% { transform: translate3d(6px,-4px,0) scale(1.02); opacity: 0.6; } }
+
+        .weather-animation.rainy { overflow: hidden; }
+        .weather-animation.rainy::before {
+            content: ""; position: absolute; inset: 0;
+            background-image: repeating-linear-gradient(to bottom, rgba(180, 180, 200, 0.23), rgba(180, 180, 200, 0.23) 16px, transparent 16px, transparent 32px);
+            opacity: 0.6; animation: rainFall 1.8s linear infinite;
+        }
+        @keyframes rainFall { 0% { transform: translateY(-20px); } 100% { transform: translateY(20px); } }
+
+        .weather-animation.cloudy::before {
+            content: ""; position: absolute; border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, rgba(230, 230, 240, 0.85), transparent 60%);
+            filter: blur(12px); opacity: 0.75; width: 130%; height: 70%; top: -15%; left: -10%;
+            animation: fogFloat 16s ease-in-out infinite alternate;
+        }
+        @keyframes fogFloat { 0% { transform: translate3d(-6px, 2px, 0); opacity: 0.55; } 100% { transform: translate3d(2px, 4px, 0); opacity: 0.6; } }
+
+        /* =========================================
+           5. 衣櫥 (Wardrobe)
+           ========================================= */
+        #add-btn-float {
+            position: absolute; top: 20px; right: 20px; 
+            background: transparent; color: var(--text-main); border: 1px solid var(--border);
+            padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: 0.3s;
+        }
+        #add-btn-float:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+        .wardrobe-filters { display: flex; gap: 15px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 10px; border-bottom: 1px solid #EEE; }
+        .filter-btn { cursor: pointer; color: var(--text-sub); font-size: 0.9rem; white-space: nowrap; padding-bottom: 10px; transition: 0.3s; }
+        .filter-btn.active { color: var(--text-main); border-bottom: 2px solid var(--text-main); }
+
+        .wardrobe-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; }
+        .w-item {
+            position: relative; background: #FFF; border-radius: var(--radius); overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); transition: 0.3s; cursor: pointer;
+        }
+        .w-item:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .w-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #F5F5F5; }
+        .w-info { padding: 12px; }
+        .w-name { font-size: 0.85rem; font-weight: 500; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .w-tag { font-size: 0.75rem; color: #999; }
+
+        /* =========================================
+           6. OOTD 推薦 (動畫優化)
+           ========================================= */
+        .ootd-form { margin-bottom: 40px; }
+        
+        /* 卡片進場動畫 */
+        .outfit-card {
+            border-left: 3px solid var(--primary-color);
+            background: linear-gradient(to right, #FFFEFC, #FBFBFB);
+            opacity: 0; transform: translateY(14px) scale(0.98);
+            animation: outfitEnter 0.55s ease-out forwards;
+            transition: transform 0.22s ease-out, box-shadow 0.22s ease-out;
+        }
+        .outfit-card:nth-child(1) { animation-delay: 0.0s; }
+        .outfit-card:nth-child(2) { animation-delay: 0.07s; }
+        .outfit-card:nth-child(3) { animation-delay: 0.14s; }
+        .outfit-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 14px 32px rgba(140, 120, 130, 0.28); }
+
+        @keyframes outfitEnter { to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .ootd-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .ootd-display { display: flex; gap: 15px; overflow-x: auto; margin: 20px 0; padding-bottom: 10px; justify-content: flex-start; }
+        .ootd-piece { text-align: center; min-width: 90px; }
+        .ootd-piece img { width: 90px; height: 110px; border-radius: 4px; object-fit: cover; margin-bottom: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .ootd-piece span { font-size: 0.75rem; color: #888; }
+        .scent-box { margin-top: 15px; padding: 12px; background: rgba(142, 128, 112, 0.08); border-radius: 4px; font-size: 0.85rem; color: #666; text-align: center; }
+
+        /* Toggle Switch */
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px dashed #EEE; padding-bottom: 10px; }
+        .toggle-label { font-size: 0.95rem; color: var(--text-main); }
+        .toggle-switch { position: relative; width: 44px; height: 24px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #DDD; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* =========================================
+           7. 歷史紀錄 & Preferences
+           ========================================= */
+        .history-list { display: flex; flex-direction: column; gap: 30px; }
+        .h-item { padding-bottom: 30px; border-bottom: 1px solid #EEE; display: grid; grid-template-columns: 80px 1fr; gap: 20px; }
+        .h-date { font-size: 0.85rem; color: var(--text-sub); letter-spacing: 0.1em; }
+        .h-weather { font-size: 1.1rem; color: var(--text-main); margin-top: 5px; }
+        .h-imgs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; }
+        .h-imgs img { width: 50px; height: 65px; object-fit: cover; background: #EEE; border-radius: 2px; }
+        .h-note { font-size: 0.9rem; color: #555; margin-bottom: 10px; line-height: 1.6; background: #FAFAFA; padding: 10px; border-radius: 4px; }
+        .h-tags { font-size: 0.8rem; color: #999; display: flex; gap: 15px; }
+        .h-actions { margin-top: 10px; text-align: right; }
+
+        .pref-group { margin-bottom: 40px; }
+        .pref-title { display: block; margin-bottom: 15px; font-size: 0.9rem; color: var(--text-sub); letter-spacing: 0.1em; border-bottom: 1px solid #EEE; padding-bottom: 5px; }
+        .color-option { width: 30px; height: 30px; border-radius: 50%; display: inline-block; margin-right: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .color-option.selected { border-color: var(--text-main); transform: scale(1.1); }
+        .lang-select { width: 100%; border: 1px solid #DDD; background: #FFF; padding: 10px; border-radius: 4px; font-family: var(--font-main); }
+
+        /* =========================================
+           8. MODAL (新增/預覽)
+           ========================================= */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); z-index: 1000;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.4s;
+        }
+        .modal.open { display: flex; opacity: 1; }
+        .modal-content {
+            background: #FFF; width: 90%; max-width: 600px; max-height: 90vh;
+            overflow-y: auto; padding: 50px 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+            position: relative; animation: slideUp 0.5s ease; border-radius: var(--radius);
+        }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-modal { position: absolute; top: 25px; right: 25px; font-size: 1.5rem; cursor: pointer; color: #CCC; transition: 0.3s; }
+        .close-modal:hover { color: #333; }
+
+        .progress-dots { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #EEE; transition: 0.3s; }
+        .dot.active { background: var(--primary-color); transform: scale(1.3); }
+
+        /* 新增：Modal 內容真正分頁，不再堆疊 */
+        .step-view { display: none; }
+        .step-view.active { display: block; animation: fadeIn 0.4s; }
+
+        /* 預覽確認視窗動畫 */
+        .outfit-preview-modal { opacity: 0; transform: scale(0.94) translateY(8px); animation: previewPop 0.32s cubic-bezier(0.16, 0.7, 0.25, 1) forwards; }
+        @keyframes previewPop { 0% { opacity: 0; transform: scale(0.9) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+
+        .preview-grid { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }
+        .preview-item { text-align: center; width: 80px; }
+        .preview-item img { width: 80px; height: 100px; object-fit: cover; margin-bottom: 5px; }
+        .preview-item span { font-size: 0.7rem; color: #999; }
+        
+        .ai-text { font-size: 0.9rem; color: #666; line-height: 1.8; text-align: center; margin-bottom: 20px; padding: 0 20px; }
+        textarea { width: 100%; border: 1px solid #EEE; padding: 15px; height: 100px; resize: none; margin-bottom: 20px; font-family: var(--font-main); }
+        .radio-group { display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; }
+        .radio-label { font-size: 0.9rem; cursor: pointer; color: #666; display: flex; align-items: center; }
+        .radio-label input { margin-right: 5px; }
+
+        .hidden { display: none !important; }
+        .form-group { margin-bottom: 30px; }
+        .form-title { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 10px; display: block; letter-spacing: 0.1em; }
+        .hint-text { font-size: 0.75rem; color: #AAA; margin-top: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <!-- 🚪 入場 (若無 User) -->
+    <div id="intro-overlay">
+        <div class="intro-content">
+            <div class="intro-logo">SARTORIAL</div>
+            <div class="intro-sub">為你打造專屬的智慧衣櫥</div>
+            <input type="text" id="username-input" class="intro-input" placeholder="請輸入你的名字">
+            <br>
+            <button class="intro-btn" onclick="initUser()">進入我的衣櫥</button>
+        </div>
+    </div>
+
+    <!-- 🍔 Header -->
+    <header id="app-header">
+        <div class="hamburger" onclick="toggleDrawer()">MENU</div>
+        <div class="app-title">SARTORIAL</div>
+        <div style="width: 40px;"></div>
+    </header>
+
+    <!-- 🗄 Sidebar -->
+    <div id="drawer-overlay" onclick="toggleDrawer()"></div>
+    <nav id="drawer">
+        <div class="drawer-header">
+            <div id="drawer-date" class="drawer-date">--</div>
+            <div id="drawer-weather" class="drawer-weather">Loading...</div>
+            <div id="drawer-quote" class="drawer-quote"></div>
+        </div>
+        <div class="nav-item" onclick="navTo('home')" data-lang-key="menu_home">主頁 Home</div>
+        <div class="nav-item" onclick="navTo('ootd')" data-lang-key="menu_ootd">今日穿搭推薦 OOTD</div>
+        <div class="nav-item" onclick="navTo('history')" data-lang-key="menu_hist">歷史穿搭紀錄 History</div>
+        <div class="nav-item" onclick="navTo('wardrobe')" data-lang-key="menu_ward">我的衣櫥 Wardrobe</div>
+        <div class="nav-item" onclick="navTo('pref')" data-lang-key="menu_pref">系統偏好設定 Preferences</div>
+    </nav>
+
+    <!-- 📱 Main Content -->
+    <main>
+
+        <!-- 🏠 HOME (Updated) -->
+        <section id="section-home" class="section active">
+            <div class="home-hero">
+                <!-- 玻璃擬物卡片 -->
+                <div class="hero-card glass">
+                    <!-- 天氣動畫背景層 -->
+                    <div class="weather-animation" id="weather-anim-layer"></div>
+                    
+                    <div class="hero-header">
+                        <span class="brand-title-animated">SARTORIAL</span>
+                        <div class="hero-date" id="home-date-display">--</div>
+                        <div class="hero-weather">
+                            <div class="weather-icon-wrapper">
+                                <!-- 極簡天氣圖示 -->
+                                <div id="weather-icon-el" class="weather-icon"></div>
+                            </div>
+                            <div class="weather-text">
+                                <div class="weather-main" id="home-weather-display">--</div>
+                                <div class="weather-sub" id="home-greeting">Hi, User</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-note">
+                        <div class="hero-note-label">DAILY NOTE</div>
+                        <div class="hero-note-text" id="home-daily-note">Loading...</div>
+                    </div>
+
+                    <div class="hero-actions">
+                        <div class="action-card" onclick="navTo('ootd')">
+                            <h3 data-lang-key="btn_ootd">前往今日穿搭推薦</h3>
+                        </div>
+                        <div class="action-card" onclick="navTo('wardrobe')">
+                            <h3 data-lang-key="btn_ward">整理我的衣櫥</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 👚 WARDROBE -->
+        <section id="section-wardrobe" class="section">
+            <div class="wardrobe-header">
+                <div class="wardrobe-title" data-lang-key="menu_ward">Wardrobe</div>
+                <button class="btn btn-outline" onclick="openAddModal()">＋ 新增單品</button>
+            </div>
+            
+            <div class="wardrobe-filters">
+                <div class="filter-btn active" onclick="filterWardrobe('all', this)">全部</div>
+                <div class="filter-btn" onclick="filterWardrobe('top', this)">上衣</div>
+                <div class="filter-btn" onclick="filterWardrobe('bottom', this)">下裝</div>
+                <div class="filter-btn" onclick="filterWardrobe('onepiece', this)">連衣裙</div>
+                <div class="filter-btn" onclick="filterWardrobe('outer', this)">外套</div>
+                <div class="filter-btn" onclick="filterWardrobe('shoes', this)">鞋子</div>
+                <div class="filter-btn" onclick="filterWardrobe('acc', this)">飾品</div>
+            </div>
+
+            <div class="wardrobe-grid" id="wardrobe-grid">
+                <!-- JS Render Items -->
+            </div>
+        </section>
+
+        <!-- 👗 OOTD -->
+        <section id="section-ootd" class="section">
+            <h2 style="margin-bottom:30px; font-weight:400; text-align:center;" data-lang-key="title_ootd">Today's Outfit</h2>
+            <div class="card ootd-form">
+                <div class="form-group">
+                    <span class="form-title">今日氣溫 (°C)</span>
+                    <input type="number" id="ootd-temp" class="input-field" value="24" onchange="updateWeatherAnim()">
+                </div>
+                
+                <div class="form-group">
+                    <span class="form-title">今日場景 (多選)</span>
+                    <div class="tags-container" id="ootd-scenes"></div>
+                </div>
+
+                <div class="form-group">
+                    <span class="form-title">想嘗試的風格 (多選)</span>
+                    <div class="tags-container" id="ootd-styles"></div>
+                </div>
+
+                <div class="toggle-row">
+                    <span class="toggle-label">是否下雨</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="ootd-rain" onchange="updateWeatherAnim()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">是否需要外套</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="ootd-outer">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">是否需要飾品</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="ootd-acc" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div style="margin-top:40px; text-align:center;">
+                    <button class="btn btn-primary" onclick="generateOOTD()">產生推薦</button>
+                </div>
+            </div>
+            
+            <div id="ootd-results"></div>
+        </section>
+
+        <!-- 📅 HISTORY -->
+        <section id="section-history" class="section">
+            <h2 style="margin-bottom:30px; font-weight:400;" data-lang-key="title_hist">History</h2>
+            <div class="history-list" id="history-list"></div>
+        </section>
+
+        <!-- ⚙️ PREFERENCES (Updated) -->
+        <section id="section-pref" class="section">
+            <h2 style="margin-bottom:30px; font-weight:400;" data-lang-key="menu_pref">Preferences</h2>
+            <div class="card">
+                <!-- A. 色系主題 -->
+                <div class="pref-group">
+                    <span class="pref-title">介面色系 Theme</span>
+                    <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                        <div class="color-option" style="background:#8E8070" onclick="setTheme('misty-beige', this)" title="霧米白 (預設)"></div>
+                        <div class="color-option" style="background:#7D7D7D" onclick="setTheme('warm-grey', this)" title="暖灰棕"></div>
+                        <div class="color-option" style="background:#B08B95" onclick="setTheme('soft-pink', this)" title="微霧粉"></div>
+                        <div class="color-option" style="background:#6B8E6B" onclick="setTheme('forest-green', this)" title="森林綠"></div>
+                        <div class="color-option" style="background:#5C6B7F" onclick="setTheme('classic-navy', this)" title="經典藍"></div>
+                    </div>
+                </div>
+
+                <!-- B. 語言選擇 -->
+                <div class="pref-group">
+                    <span class="pref-title">語言 Language</span>
+                    <select id="pref-lang" class="lang-select" onchange="setLanguage(this.value)">
+                        <option value="zh-TW">繁體中文</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <div class="pref-group">
+                    <span class="pref-title">使用者名稱</span>
+                    <input type="text" id="pref-name" class="input-field">
+                </div>
+
+                <div style="text-align:right; margin-top:30px;">
+                    <button class="btn btn-primary" onclick="savePref()">儲存設定</button>
+                    <button class="btn btn-text" onclick="clearData()" style="color:#d9534f; margin-left:10px;">重置資料</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ✏️ ADD ITEM MODAL (Updated) -->
+    <div id="modal-add" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modal-add')">×</span>
+            <div class="progress-dots">
+                <div class="dot active" id="dot-1"></div>
+                <div class="dot" id="dot-2"></div>
+                <div class="dot" id="dot-3"></div>
+                <div class="dot" id="dot-4"></div>
+            </div>
+
+            <form id="add-form" onsubmit="return false;">
+                <!-- STEP 1 -->
+                <div id="step-1" class="step-view active">
+                    <div class="form-group">
+                        <span class="form-title">單品名稱</span>
+                        <input type="text" id="inp-name" class="input-field" placeholder="Ex: 米色羊毛衫">
+                    </div>
+                    <div class="form-group">
+                        <span class="form-title">類別</span>
+                        <select id="inp-category" class="input-field" onchange="updateStep2View()">
+                            <option value="top">上衣 (Top)</option>
+                            <option value="bottom">下裝 (Bottom)</option>
+                            <option value="onepiece">連衣裙 (One-piece)</option>
+                            <option value="outer">外套 (Outer)</option>
+                            <option value="shoes">鞋子 (Shoes)</option>
+                            <option value="acc">飾品 (Accessory)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <span class="form-title">圖片上傳 (Upload)</span>
+                        <input type="file" id="inp-file" class="input-field" accept="image/*" onchange="previewImage(this)">
+                        <input type="hidden" id="inp-img-base64">
+                    </div>
+                    <div style="text-align:right;"><button class="btn btn-primary" onclick="goStep(2)">下一步</button></div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div id="step-2" class="step-view">
+                    <div id="view-clothes" class="hidden">
+                        <div class="form-group">
+                            <span class="form-title">適合氣溫 (可多選)</span>
+                            <div class="tags-container" id="tags-temp"></div>
+                            <div class="hint-text">寒冷 <12°C | 涼爽 12-20°C | 微熱 20-27°C | 炎熱 >27°C</div>
+                        </div>
+                        <div class="form-group">
+                            <span class="form-title">厚薄度</span>
+                            <select id="inp-thickness" class="input-field">
+                                <option value="thin">薄</option>
+                                <option value="medium">中</option>
+                                <option value="thick">厚</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="view-shoes" class="hidden">
+                        <div class="form-group">
+                            <span class="form-title">鞋款類型</span>
+                            <select id="inp-shoe-type" class="input-field">
+                                <option value="sneakers">運動鞋</option>
+                                <option value="boots">靴子</option>
+                                <option value="flats">平底鞋</option>
+                                <option value="heels">高跟鞋</option>
+                                <option value="sandals">涼鞋</option>
+                                <option value="rainboots">雨鞋</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <span class="form-title">功能</span>
+                            <div class="tags-container">
+                                <label class="tag-label"><input type="checkbox" id="inp-waterproof" class="check-hidden"><span class="tag-pill">防水</span></label>
+                                <label class="tag-label"><input type="checkbox" id="inp-antislip" class="check-hidden"><span class="tag-pill">防滑</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="view-acc" class="hidden">
+                        <div class="form-group">
+                            <span class="form-title">類型</span>
+                            <select id="inp-acc-type" class="input-field">
+                                <option value="necklace">項鍊</option>
+                                <option value="ring">戒指</option>
+                                <option value="earrings">耳環</option>
+                                <option value="bracelet">手鍊</option>
+                                <option value="hat">帽子</option>
+                                <option value="sunglasses">墨鏡</option>
+                                <option value="scarf">圍巾</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <span class="form-title">配戴部位</span>
+                            <select id="inp-acc-part" class="input-field">
+                                <option value="head">頭部</option>
+                                <option value="eyes">眼部</option>
+                                <option value="ear">耳朵</option>
+                                <option value="neck">頸部</option>
+                                <option value="hand">手/腕</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                        <button class="btn btn-outline" onclick="goStep(1)">上一步</button>
+                        <button class="btn btn-primary" onclick="goStep(3)">下一步</button>
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div id="step-3" class="step-view">
+                    <div class="form-group">
+                        <span class="form-title">材質</span>
+                        <select id="inp-material" class="input-field"></select>
+                    </div>
+                    <div class="form-group">
+                        <span class="form-title">風格 (多選)</span>
+                        <div class="tags-container" id="tags-style"></div>
+                    </div>
+                    <div class="form-group">
+                        <span class="form-title">場景 (多選)</span>
+                        <div class="tags-container" id="tags-scene"></div>
+                    </div>
+                    <div class="form-group">
+                        <span class="form-title">顏色</span>
+                        <input type="text" id="inp-color" class="input-field">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                        <button class="btn btn-outline" onclick="goStep(2)">上一步</button>
+                        <button class="btn btn-primary" onclick="goStep(4)">下一步</button>
+                    </div>
+                </div>
+
+                <!-- STEP 4 -->
+                <div id="step-4" class="step-view">
+                    <div class="form-group">
+                        <span class="form-title">保養 / 清潔方式</span>
+                        <select id="inp-care" class="input-field"></select>
+                        <input type="text" id="inp-care-custom" class="input-field" placeholder="其他方式..." style="display:none;">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                        <button class="btn btn-outline" onclick="goStep(3)">上一步</button>
+                        <button class="btn btn-primary" onclick="saveItem()">完成新增</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 👗 PREVIEW & CONFIRM MODAL -->
+    <div id="modal-confirm" class="modal">
+        <div class="modal-content outfit-preview-modal">
+            <span class="close-modal" onclick="closeModal('modal-confirm')">×</span>
+            <h3 style="margin-bottom:30px; text-align:center; letter-spacing:0.1em; font-weight:400;">穿搭確認</h3>
+            
+            <div id="confirm-visual" class="preview-grid"></div>
+
+            <div class="ai-text">
+                <div id="confirm-idea" style="margin-bottom:10px;"></div>
+                <div id="confirm-scent" style="font-size:0.85rem; color:var(--primary-color);"></div>
+            </div>
+
+            <div class="feedback-area">
+                <div class="form-group">
+                    <span class="form-title">心情札記</span>
+                    <textarea id="record-note" placeholder="記錄一下今天的心情..."></textarea>
+                </div>
+                
+                <div class="form-group" style="text-align:center;">
+                    <span class="form-title">今日體感</span>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="rec-thermal" value="太冷"> 太冷</label>
+                        <label class="radio-label"><input type="radio" name="rec-thermal" value="剛好" checked> 剛好</label>
+                        <label class="radio-label"><input type="radio" name="rec-thermal" value="太熱"> 太熱</label>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="text-align:center;">
+                    <span class="form-title">喜好程度</span>
+                    <div class="radio-group">
+                        <label class="radio-label"><input type="radio" name="rec-like" value="喜歡" checked> 喜歡</label>
+                        <label class="radio-label"><input type="radio" name="rec-like" value="普通"> 普通</label>
+                        <label class="radio-label"><input type="radio" name="rec-like" value="不喜歡"> 不喜歡</label>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:30px; display:flex; justify-content:space-between;">
+                <button class="btn btn-outline" onclick="closeModal('modal-confirm')">取消</button>
+                <button class="btn btn-primary" onclick="saveToHistory()">確認加入紀錄</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✏️ EDIT HISTORY MODAL -->
+    <div id="modal-edit-history" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modal-edit-history')">×</span>
+            <h3 style="margin-bottom:20px; text-align:center;">編輯紀錄</h3>
+            <input type="hidden" id="edit-history-id">
+            <div class="form-group">
+                <span class="form-title">心情札記</span>
+                <textarea id="edit-note" style="width:100%; border:1px solid #EEE; padding:10px; height:80px;"></textarea>
+            </div>
+            <div class="form-group">
+                <span class="form-title">體感</span>
+                <select id="edit-thermal" class="input-field">
+                    <option>太冷</option><option>剛好</option><option>太熱</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <span class="form-title">喜好</span>
+                <select id="edit-like" class="input-field">
+                    <option>喜歡</option><option>普通</option><option>不喜歡</option>
+                </select>
+            </div>
+            <div style="text-align:right;">
+                <button class="btn btn-primary" onclick="saveHistoryEdit()">儲存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==================== 1. 多語言 & 文字庫 ==================== */
+        const TEXTS = {
+            'zh-TW': {
+                menu_home: "主頁 Home", menu_ootd: "今日穿搭推薦 OOTD", menu_hist: "歷史穿搭紀錄 History", 
+                menu_ward: "我的衣櫥 Wardrobe", menu_pref: "系統偏好設定 Preferences",
+                btn_ootd: "前往今日穿搭推薦", btn_ward: "整理我的衣櫥",
+                title_ootd: "Today's Outfit", title_hist: "History", title_pref: "Preferences"
+            },
+            'en': {
+                menu_home: "Home", menu_ootd: "OOTD Recommendation", menu_hist: "History", 
+                menu_ward: "My Wardrobe", menu_pref: "Preferences",
+                btn_ootd: "Get Today's OOTD", btn_ward: "Manage Wardrobe",
+                title_ootd: "Today's Outfit", title_hist: "History", title_pref: "Preferences"
+            }
+        };
+
+        const QUOTES = {
+            sunny: [
+                "今天陽光很好，適合把喜歡的自己穿出去走走。", "天氣晴朗，心也可以亮一點。", "陽光柔柔的，選一件你舒服的衣服吧。",
+                "今天的世界很溫柔，也請對自己溫柔一點。", "讓光落在你身上，也落在你的心裡。", "天氣很好，穿上讓你步伐輕盈的那件吧。",
+                "美好的一天，用舒服的穿搭開始。", "選擇輕鬆自在的風格，迎接晴朗的一天。", "今天的藍天值得你打扮得更開心。",
+                "天氣晴朗，你的心情也可以跟著亮起來。"
+            ],
+            cloudy: [
+                "今天有點灰，穿出自己的光。", "天色安靜，搭配也可以柔和一點。", "陰天適合舒適的材質，也適合沉靜的你。",
+                "灰色的天很適合極簡穿搭。", "天空沉穩，你也可以穿得沉著有質感。", "陰天讓世界變慢，你也可以慢一點。",
+                "今天的色調柔柔的，穿搭也不必太張揚。", "少一點陽光，多一點自己的風格。", "今天安靜，不妨穿得清爽俐落。",
+                "灰灰的天，適合溫柔的色系。"
+            ],
+            rainy: [
+                "外面下雨，記得帶外套，也帶上耐心。", "雨聲很輕，穿搭也可以簡單乾淨。", "選防水的鞋，選保暖的自己。",
+                "今天適合實用與質感兼具的穿搭。", "下雨天也能很時髦，只要選對單品。", "一點雨不會壞掉你的好心情。",
+                "天氣濕濕的，材質可以挺一點。", "雨天適合穿得俐落，不拖泥帶水。", "記得加件外套，或帶把傘。",
+                "今天適合深色系，更耐髒耐看。"
+            ],
+            cold: [
+                "今天有點冷，把自己包得暖暖的很可愛。", "氣溫低，請善待自己的身體。", "今天適合溫暖的針織與厚實布料。",
+                "裡外都暖一點，才是對生活的溫柔。", "天氣冷，可以穿得層次更漂亮。", "別忍冷，穿得暖一點才有力氣漂亮。",
+                "圍巾也可以是一種風格。", "厚外套今天是主角。", "冷天的配色也可以很清爽。", "今天適合大地色系或溫柔奶油色。"
+            ]
+        };
+
+        /* ==================== 2. DATA CONSTANTS ==================== */
+        const TEMPS = [
+            { val: "cold", label: "寒冷 <12°C" }, { val: "cool", label: "涼爽 12-20°C" },
+            { val: "warm", label: "微熱 20-27°C" }, { val: "hot", label: "炎熱 >27°C" }
+        ];
+        const STYLES = ["極簡","甜美","街頭","中性","自然系","韓系","日系","復古","氣質","正式","暗黑","Y2K","美式休閒"];
+        const SCENES = ["上班","上課","約會","運動","旅遊","正式場合","家居","派對","咖啡廳","夜間外出","拍照"];
+        
+        const MAT_CLOTHES = ["棉","麻","羊毛","絲","聚酯","丹寧","皮革","絨面","針織","雪紡","彈性纖維"];
+        const MAT_SHOES = ["皮革","橡膠","布料","合成皮","麂皮","網布"];
+        const MAT_ACC = ["黃金","白銀","玫瑰金","不鏽鋼","樹脂","珍珠","毛線"];
+
+        const CARE_CLOTHES = ["機洗","手洗","乾洗","陰乾","不可烘乾","低溫燙","其他"];
+        const CARE_SHOES = ["皮鞋上油","布鞋手洗","麂皮刷拭","不可浸泡","其他"];
+        const CARE_ACC = ["拭銀布","乾布擦","避免碰水","皮革油","其他"];
+
+        /* ==================== 3. STATE ==================== */
+        let state = {
+            user: null,
+            wardrobe: [],
+            history: [],
+            pref: { theme: 'misty-beige', lang: 'zh-TW' }
+        };
+        let currentOOTD = null;
+
+        /* ==================== 4. INIT & PREF ==================== */
+        function init() {
+            const data = localStorage.getItem('sartorial_db_v3');
+            if (data) {
+                state = JSON.parse(data);
+                applyTheme(state.pref.theme);
+                applyLang(state.pref.lang);
+                if(!state.user) showIntro(); else renderHome();
+            } else {
+                showIntro();
+            }
+            
+            // Set Date
+            const today = new Date().toLocaleDateString(state.pref.lang === 'en' ? 'en-US' : 'zh-TW');
+            document.getElementById('home-date-display').innerText = today;
+            document.getElementById('drawer-date').innerText = today;
+            
+            // Init Weather Visuals
+            updateWeatherAnim();
+        }
+
+        function showIntro() { document.getElementById('intro-overlay').style.display = 'flex'; }
+        function initUser() {
+            const name = document.getElementById('username-input').value;
+            if(!name) return;
+            state.user = name; saveData();
+            document.getElementById('intro-overlay').style.display = 'none';
+            renderHome();
+        }
+        function saveData() { localStorage.setItem('sartorial_db_v3', JSON.stringify(state)); }
+
+        function setTheme(themeName, el) {
+            state.pref.theme = themeName;
+            applyTheme(themeName);
+            saveData();
+            document.querySelectorAll('.color-option').forEach(d=>d.classList.remove('selected'));
+            if(el) el.classList.add('selected');
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        function setLanguage(lang) {
+            state.pref.lang = lang;
+            applyLang(lang);
+            saveData();
+        }
+
+        function applyLang(lang) {
+            const t = TEXTS[lang];
+            if(!t) return;
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if(t[key]) el.innerText = t[key];
+            });
+            document.getElementById('pref-lang').value = lang;
+        }
+
+        function clearData() {
+            if(confirm("確定重置所有資料？此動作無法復原。")) {
+                localStorage.removeItem('sartorial_db_v3');
+                location.reload();
+            }
+        }
+
+        /* ==================== 5. HOME LOGIC (Updated) ==================== */
+        function renderHome() {
+            document.getElementById('home-greeting').innerText = `Hi, ${state.user}`;
+            document.getElementById('pref-name').value = state.user;
+            updateWeatherAnim(); 
+        }
+
+        function updateWeatherAnim() {
+            const temp = parseInt(document.getElementById('ootd-temp').value) || 24;
+            const isRain = document.getElementById('ootd-rain').checked;
+            
+            const display = document.getElementById('home-weather-display');
+            const drawerW = document.getElementById('drawer-weather');
+            const animLayer = document.getElementById('weather-anim-layer');
+            const iconEl = document.getElementById('weather-icon-el');
+            const noteText = document.getElementById('home-daily-note');
+            const drawerQuote = document.getElementById('drawer-quote');
+
+            let weatherType = 'sunny';
+            let weatherText = '晴';
+            let iconClass = 'icon-sunny';
+
+            if(isRain) { 
+                weatherType = 'rainy'; weatherText = '雨'; iconClass = 'icon-rainy-light';
+            } else if(temp < 20) { 
+                weatherType = 'cloudy'; weatherText = '陰/涼'; iconClass = 'icon-cloudy';
+            }
+            
+            const str = `${weatherText} ${temp}°C`;
+            display.innerText = str;
+            drawerW.innerText = str;
+
+            animLayer.className = 'weather-animation ' + weatherType;
+            iconEl.className = 'weather-icon ' + iconClass;
+
+            let category = 'sunny';
+            if(isRain) category = 'rainy';
+            else if(temp < 15) category = 'cold';
+            else if(temp < 22) category = 'cloudy';
+            
+            const list = QUOTES[category];
+            const q = list[Math.floor(Math.random() * list.length)];
+            noteText.innerText = q;
+            drawerQuote.innerText = q;
+        }
+
+        /* ==================== 6. NAVIGATION ==================== */
+        function toggleDrawer() {
+            document.getElementById('drawer').classList.toggle('open');
+            document.getElementById('drawer-overlay').classList.toggle('open');
+        }
+        function navTo(id) {
+            toggleDrawer();
+            document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+            document.getElementById('section-'+id).classList.add('active');
+            if(id==='home') renderHome();
+            if(id==='wardrobe') renderWardrobe();
+            if(id==='history') renderHistory();
+            if(id==='ootd') initOOTDForm();
+            if(id==='pref') renderPref();
+        }
+        function renderPref() { document.getElementById('pref-name').value = state.user; }
+
+        /* ==================== 7. WARDROBE & ADD (Updated with File Upload) ==================== */
+        let addStep = 1;
+        function openAddModal() {
+            document.getElementById('modal-add').classList.add('open');
+            resetAddForm();
+        }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        function resetAddForm() {
+            addStep = 1; updateStepView();
+            document.getElementById('add-form').reset();
+            renderTags('tags-temp', TEMPS.map(t=>t.label), 'temp');
+            renderTags('tags-style', STYLES, 'style');
+            renderTags('tags-scene', SCENES, 'scene');
+            updateStep2View();
+        }
+        function goStep(n) { addStep = n; updateStepView(); }
+        function updateStepView() {
+            for(let i=1;i<=4;i++) document.getElementById(`dot-${i}`).classList.toggle('active', i===addStep);
+            document.querySelectorAll('.step-view').forEach(v=>v.classList.remove('active'));
+            document.getElementById(`step-${addStep}`).classList.add('active');
+        }
+        function updateStep2View() {
+            const cat = document.getElementById('inp-category').value;
+            document.getElementById('view-clothes').classList.add('hidden');
+            document.getElementById('view-shoes').classList.add('hidden');
+            document.getElementById('view-acc').classList.add('hidden');
+            
+            const mat = document.getElementById('inp-material');
+            const care = document.getElementById('inp-care');
+
+            if(cat==='shoes') {
+                document.getElementById('view-shoes').classList.remove('hidden');
+                populate(mat, MAT_SHOES); populate(care, CARE_SHOES);
+            } else if(cat==='acc') {
+                document.getElementById('view-acc').classList.remove('hidden');
+                populate(mat, MAT_ACC); populate(care, CARE_ACC);
+            } else {
+                document.getElementById('view-clothes').classList.remove('hidden');
+                populate(mat, MAT_CLOTHES); populate(care, CARE_CLOTHES);
+            }
+        }
+        function populate(el, arr) { el.innerHTML = arr.map(x=>`<option>${x}</option>`).join(''); }
+        function renderTags(id, arr, name) {
+            document.getElementById(id).innerHTML = arr.map(i=>`
+                <label class="tag-label" title="${i.includes('寒冷')?'適合 <12°C':''}">
+                    <input type="checkbox" class="check-hidden" name="${name}" value="${i}">
+                    <span class="tag-pill">${i}</span>
+                </label>
+            `).join('');
+        }
+        function getChecked(name) { return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(c=>c.value); }
+        
+        // Image Upload
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { document.getElementById('inp-img-base64').value = e.target.result; }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveItem() {
+            const cat = document.getElementById('inp-category').value;
+            // Use uploaded base64 or placeholder
+            const imgVal = document.getElementById('inp-img-base64').value || document.getElementById('inp-img').value;
+            
+            const item = {
+                id: Date.now(), name: document.getElementById('inp-name').value||'未命名',
+                category: cat, img: imgVal,
+                styles: getChecked('style'), scenes: getChecked('scene'),
+                color: document.getElementById('inp-color').value,
+                material: document.getElementById('inp-material').value,
+                care: document.getElementById('inp-care').value
+            };
+            if(cat==='shoes') {
+                item.shoeType = document.getElementById('inp-shoe-type').value;
+                item.waterproof = document.getElementById('inp-waterproof').checked;
+            } else if(cat==='acc') {
+                item.accType = document.getElementById('inp-acc-type').value;
+                item.accPart = document.getElementById('inp-acc-part').value;
+            } else {
+                const rawTemps = getChecked('temp');
+                item.temps = rawTemps.map(l => {
+                    if(l.includes('寒冷')) return 'cold'; if(l.includes('涼爽')) return 'cool';
+                    if(l.includes('微熱')) return 'warm'; return 'hot';
+                });
+                item.thickness = document.getElementById('inp-thickness').value;
+            }
+            state.wardrobe.push(item); saveData(); closeModal('modal-add'); renderWardrobe();
+        }
+
+        function renderWardrobe(filter='all') {
+            const grid = document.getElementById('wardrobe-grid'); grid.innerHTML = '';
+            const items = filter==='all' ? state.wardrobe : state.wardrobe.filter(i=>i.category===filter);
+            if(items.length===0) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#999;margin-top:20px;">尚無單品</div>'; return; }
+            items.forEach(i => {
+                grid.innerHTML += `
+                    <div class="w-item">
+                        <img src="${i.img||''}" class="w-img">
+                        <div class="w-info"><div class="w-name">${i.name}</div><div class="w-tag">${i.category}</div></div>
+                    </div>`;
+            });
+        }
+        function filterWardrobe(c, b) {
+            document.querySelectorAll('.filter-btn').forEach(el=>el.classList.remove('active'));
+            b.classList.add('active'); renderWardrobe(c);
+        }
+
+        /* ==================== 8. OOTD GENERATION ==================== */
+        function initOOTDForm() {
+            renderTags('ootd-scenes', SCENES, 'ootd-scene');
+            renderTags('ootd-styles', STYLES, 'ootd-style');
+        }
+
+        function generateOOTD() {
+            const temp = parseInt(document.getElementById('ootd-temp').value);
+            const rain = document.getElementById('ootd-rain').checked;
+            const needOuter = document.getElementById('ootd-outer').checked;
+            const needAcc = document.getElementById('ootd-acc').checked;
+            
+            let tTag = 'warm';
+            if(temp<12) tTag='cold'; else if(temp<=20) tTag='cool'; else if(temp<=27) tTag='warm'; else tTag='hot';
+
+            const filterT = (arr) => arr.filter(i => !i.temps || i.temps.includes(tTag));
+            
+            const tops = filterT(state.wardrobe.filter(i=>i.category==='top'));
+            const bottoms = filterT(state.wardrobe.filter(i=>i.category==='bottom'));
+            const onepieces = filterT(state.wardrobe.filter(i=>i.category==='onepiece'));
+            const outers = filterT(state.wardrobe.filter(i=>i.category==='outer'));
+            const shoes = state.wardrobe.filter(i=>i.category==='shoes');
+            const accs = state.wardrobe.filter(i=>i.category==='acc');
+
+            const resDiv = document.getElementById('ootd-results'); resDiv.innerHTML='';
+
+            for(let i=0;i<3;i++) {
+                let outfit = [];
+                let mainStyle = '';
+                
+                const useOP = (onepieces.length>0 && Math.random()>0.5);
+                if(useOP) {
+                    const op = onepieces[Math.floor(Math.random()*onepieces.length)];
+                    outfit.push(op); mainStyle = op.styles?op.styles[0]:'';
+                } else if(tops.length>0 && bottoms.length>0) {
+                    const t = tops[Math.floor(Math.random()*tops.length)];
+                    const b = bottoms[Math.floor(Math.random()*bottoms.length)];
+                    outfit.push(t); outfit.push(b); mainStyle = t.styles?t.styles[0]:'';
+                } else { continue; }
+
+                if(shoes.length>0) outfit.push(shoes[Math.floor(Math.random()*shoes.length)]);
+                if(needOuter && outers.length>0) outfit.unshift(outers[Math.floor(Math.random()*outers.length)]);
+                if(needAcc && accs.length>0) outfit.push(accs[Math.floor(Math.random()*accs.length)]);
+
+                const scent = getScent(mainStyle||'極簡');
+                
+                const card = document.createElement('div');
+                card.className = 'card ootd-result-card outfit-card'; // Added animation class
+                card.innerHTML = `
+                    <div class="ootd-header">
+                        <span style="font-weight:500;">組合 ${i+1}</span>
+                        <span style="font-size:0.8rem; color:#999;">${mainStyle||'日常'}</span>
+                    </div>
+                    <div class="ootd-display">
+                        ${outfit.map(x=>`<div class="ootd-piece"><img src="${x.img||''}"><br><span>${x.name}</span></div>`).join('')}
+                    </div>
+                    <p style="font-size:0.9rem; color:#555;">適合 ${tTag} 的天氣。${shoes.length===0?'<br><small style="color:red;">*缺鞋子</small>':''}</p>
+                    <div class="scent-box">🌿 ${scent}</div>
+                    <button class="btn btn-primary" style="width:100%; margin-top:15px;" 
+                        onclick='openConfirmModal(${JSON.stringify(outfit)}, "${mainStyle}", "${scent}")'>選擇這套</button>
+                `;
+                resDiv.appendChild(card);
+            }
+            if(resDiv.innerHTML==='') resDiv.innerHTML='<p style="text-align:center;color:#999">衣物不足以搭配</p>';
+        }
+
+        function getScent(style) {
+            if(style.includes("極簡")) return "清新木質調";
+            if(style.includes("甜美")) return "花果香";
+            if(style.includes("幹練")) return "中性辛香";
+            return "淡雅皂香";
+        }
+
+        /* ==================== 9. CONFIRM & HISTORY ==================== */
+        function openConfirmModal(outfit, style, scent) {
+            currentOOTD = outfit;
+            document.getElementById('modal-confirm').classList.add('open');
+            document.getElementById('confirm-visual').innerHTML = outfit.map(x=>`
+                <div class="preview-item"><img src="${x.img||''}"><br><span>${x.name}</span></div>
+            `).join('');
+            document.getElementById('confirm-idea').innerText = `這套搭配主打${style||'舒適'}風格，適合今日天氣。`;
+            document.getElementById('confirm-scent').innerText = `推薦香氛：${scent}`;
+        }
+
+        function saveToHistory() {
+            const note = document.getElementById('record-note').value;
+            const rec = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                weather: document.getElementById('ootd-temp').value + "°C",
+                items: currentOOTD,
+                note: note,
+                thermal: document.querySelector('input[name="rec-thermal"]:checked').value,
+                like: document.querySelector('input[name="rec-like"]:checked').value
+            };
+            state.history.unshift(rec);
+            saveData();
+            closeModal('modal-confirm');
+            navTo('history');
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list'); list.innerHTML='';
+            if(state.history.length===0) { list.innerHTML='<p style="text-align:center;color:#999">無紀錄</p>'; return; }
+            state.history.forEach(h => {
+                list.innerHTML += `
+                    <div class="h-item">
+                        <div style="text-align:right;">
+                            <div class="h-date">${h.date}</div>
+                            <div class="h-weather">${h.weather}</div>
+                        </div>
+                        <div>
+                            <div class="h-imgs">${h.items.map(i=>`<img src="${i.img||''}">`).join('')}</div>
+                            <div class="h-note">${h.note||'無札記'}</div>
+                            <div class="h-tags"><span>${h.thermal}</span> <span>${h.like}</span></div>
+                            <div class="h-actions">
+                                <button class="btn-text" onclick="editHistory(${h.id})">編輯</button>
+                                <button class="btn-text" style="color:red" onclick="delHistory(${h.id})">刪除</button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        let editId = null;
+        function editHistory(id) {
+            const h = state.history.find(i=>i.id===id);
+            if(!h) return;
+            editId = id;
+            document.getElementById('edit-note').value = h.note;
+            document.getElementById('modal-edit-history').classList.add('open');
+        }
+        function saveHistoryEdit() {
+            const h = state.history.find(i=>i.id===editId);
+            if(h) {
+                h.note = document.getElementById('edit-note').value;
+                h.thermal = document.getElementById('edit-thermal').value;
+                h.like = document.getElementById('edit-like').value;
+                saveData(); closeModal('modal-edit-history'); renderHistory();
+            }
+        }
+        function delHistory(id) {
+            if(confirm("確定刪除？")) {
+                state.history = state.history.filter(i=>i.id!==id);
+                saveData(); renderHistory();
+            }
+        }
+
+        // Run
+        window.onload = init;
+
+    </script>
+</body>
+</html>
